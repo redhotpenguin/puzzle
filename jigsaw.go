@@ -19,22 +19,39 @@ func flip() float32 {
 	}
 }
 
+var size float32 = 100
+
+// var offset float32 = 0
+var halfway float32 = 0.5
+var curveOne float32 = 0.2            // 0 to 0.5
+var curveTwo float32 = 0.1            // 0 to 0.1
+var curveThree float32 = curveOne * 2 // 0.4
+var curveFour float32 = curveTwo * 3  // 0.3
+
 func main() {
 
 	var curves = [4][3][3]point{}
 
-	var size float32 = 100
-	//	var offset float32 = 0
-	var halfway float32 = 0.5
-	var curveOne float32 = 0.2            // 0 to 0.5
-	var curveTwo float32 = 0.1            // 0 to 0.1
-	var curveThree float32 = curveOne * 2 // 0.4
-	var curveFour float32 = curveTwo * 3  // 0.3
-
 	// outie or innie??
 	var outie float32 = flip() // 1.0 is outie, -1.0 is innie
+	curves = setTopSide(curves, outie)
 
-	fmt.Printf("<!-- Outie %1.0f -->\n", outie)
+	outie = flip()
+	curves = setRightSide(curves, outie)
+
+	outie = flip()
+	curves = setBottomSide(curves, outie)
+
+	outie = flip()
+	curves = setLeftSide(curves, outie)
+
+	// format
+	strCurves := formatSvg(curves)
+
+	fmt.Printf("%s", strCurves)
+}
+
+func setTopSide(curves [4][3][3]point, outie float32) [4][3][3]point {
 
 	// top side. Every 3 lines is one C SVG declaration
 	curves[0][0][0] = point{size * curveOne, 0}
@@ -49,6 +66,11 @@ func main() {
 	curves[0][2][1] = point{size * (1 - curveOne), 0}
 	curves[0][2][2] = point{size, 0}
 
+	return curves
+}
+
+func setRightSide(curves [4][3][3]point, outie float32) [4][3][3]point {
+
 	// right side
 	curves[1][0][0] = point{size, size * curveOne}
 	curves[1][0][1] = point{size * (1 - (outie * curveTwo)), size * halfway}
@@ -62,6 +84,10 @@ func main() {
 	curves[1][2][1] = point{size, size * (1 - curveOne)}
 	curves[1][2][2] = point{size, size}
 
+	return curves
+}
+
+func setBottomSide(curves [4][3][3]point, outie float32) [4][3][3]point {
 	// bottom side
 	curves[2][0][0] = point{size * (1 - curveOne), size}
 	curves[2][0][1] = point{size * halfway, size * (1 - (outie * curveTwo))}
@@ -74,6 +100,11 @@ func main() {
 	curves[2][2][0] = point{size * halfway, size * (1 - (outie * curveTwo))}
 	curves[2][2][1] = point{size * (1 * curveOne), size}
 	curves[2][2][2] = point{0, size}
+
+	return curves
+}
+
+func setLeftSide(curves [4][3][3]point, outie float32) [4][3][3]point {
 
 	// left side
 	curves[3][0][0] = point{0, size * (1 - curveOne)}
@@ -88,9 +119,7 @@ func main() {
 	curves[3][2][1] = point{0, size * curveOne}
 	curves[3][2][2] = point{0, 0}
 
-	strCurves := formatSvg(curves)
-
-	fmt.Printf("%s", strCurves)
+	return curves
 }
 
 func formatSvg(curves [4][3][3]point) string {

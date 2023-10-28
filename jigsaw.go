@@ -94,11 +94,11 @@ func formatSvg(curves [4][3][3]point) string {
 	var svgHeader string = "<!-- generated with jigsaw.go -->\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\" width=\"200mm\" height=\"200mm\" viewBox=\"-30 -30 200 200\">"
 
 	var pathElemStart string = "<path fill=\"Blue\" stroke=\"Red\" stroke-width=\"0\" d=\""
-	var strCurve string = "M 0,0 "
+	var strCurve string = "\tM 0,0 "
 
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 3; j++ {
-			curveLine := fmt.Sprintf("C %0.1f,%0.1f %0.1f,%0.1f %0.1f,%0.1f",
+			curveLine := fmt.Sprintf("\tC %0.1f,%0.1f %0.1f,%0.1f %0.1f,%0.1f",
 				curves[i][j][0].x,
 				curves[i][j][0].y,
 				curves[i][j][1].x,

@@ -22,28 +22,41 @@ var curveFour float32 = curveTwo * 3  // 0.3
 
 func main() {
 
-	var width float32 = 0
-	var height float32 = 0
+	var width float32 = size
+	var height float32 = size
 
 	var curves = [4][3][3]point{}
 
 	// outie or innie??
 	var outie float32 = flip() // 1.0 is outie, -1.0 is innie
+	height = bumpDimension(height, outie, size)
 	curves = setTopSide(curves, outie)
 
 	outie = flip()
+	width = bumpDimension(width, outie, size)
 	curves = setRightSide(curves, outie)
 
 	outie = flip()
+	height = bumpDimension(height, outie, size)
 	curves = setBottomSide(curves, outie)
 
 	outie = flip()
+	width = bumpDimension(width, outie, size)
 	curves = setLeftSide(curves, outie)
 
 	// format
-	strCurves := formatSvg(curves)
-
+	strCurves := formatSvg(curves, width, height)
 	fmt.Printf("%s", strCurves)
+}
+
+func bumpDimension(dimension float32, outie float32, size float32) float32 {
+
+	if outie == 1.0 {
+		dimension += size * 0.25
+	} else {
+		dimension += size * 0.025
+	}
+	return dimension
 }
 
 func flip() float32 {
@@ -125,10 +138,11 @@ func setLeftSide(curves [4][3][3]point, outie float32) [4][3][3]point {
 	return curves
 }
 
-func formatSvg(curves [4][3][3]point) string {
+func formatSvg(curves [4][3][3]point, width float32, height float32) string {
 
 	var svgHeader string = "<!-- generated with jigsaw.go -->\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\" width=\"200mm\" height=\"200mm\" viewBox=\"-30 -30 200 200\">"
 
+	var dimension string = fmt.Sprintf("<!-- width %1.1f, height %1.1f -->\n", width, height)
 	var pathElemStart string = "<path fill=\"Blue\" stroke=\"Red\" stroke-width=\"0\" d=\""
 	var strCurve string = "\tM 0,0 "
 
@@ -150,7 +164,7 @@ func formatSvg(curves [4][3][3]point) string {
 	var svgFooter string = "</svg>"
 
 	// put it all together
-	strCurve = strings.Join([]string{svgHeader, pathElemStart, strCurve, pathElemEnd, svgFooter}, "\n")
+	strCurve = strings.Join([]string{svgHeader, dimension, pathElemStart, strCurve, pathElemEnd, svgFooter}, "\n")
 
 	return strCurve
 }

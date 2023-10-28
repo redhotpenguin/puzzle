@@ -11,14 +11,6 @@ type point struct {
 	y float32
 }
 
-func flip() float32 {
-	if rand.Intn(2) == 0 {
-		return 1.0
-	} else {
-		return -1.0
-	}
-}
-
 var size float32 = 100
 
 // var offset float32 = 0
@@ -29,6 +21,9 @@ var curveThree float32 = curveOne * 2 // 0.4
 var curveFour float32 = curveTwo * 3  // 0.3
 
 func main() {
+
+	var width float32 = 0
+	var height float32 = 0
 
 	var curves = [4][3][3]point{}
 
@@ -49,6 +44,14 @@ func main() {
 	strCurves := formatSvg(curves)
 
 	fmt.Printf("%s", strCurves)
+}
+
+func flip() float32 {
+	if rand.Intn(2) == 0 {
+		return 1.0
+	} else {
+		return -1.0
+	}
 }
 
 func setTopSide(curves [4][3][3]point, outie float32) [4][3][3]point {

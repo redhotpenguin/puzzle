@@ -13,12 +13,17 @@ type point struct {
 
 var size float32 = 100
 
+// offset which would be the jigsaw cutting width so pieces fit together
 var offset float32 = 1
+
+// magic numbers which control the shapes of the innies/outies
 var halfway float32 = 0.5
 var curveOne float32 = 0.2            // 0 to 0.5
 var curveTwo float32 = 0.1            // 0 to 0.1
 var curveThree float32 = curveOne * 2 // 0.4
 var curveFour float32 = curveTwo * 3  // 0.3
+
+var alignmentDebug bool = false
 
 func main() {
 
@@ -32,34 +37,54 @@ func main() {
 	var offsetWidth float32 = offsetSize
 	var offsetHeight float32 = offsetSize
 
-	// outie or innie??
+	// no offset with debug alignment
+	var alignmentOffset float32 = 0
+	if alignmentDebug {
+		offset = 0
+		alignmentOffset = 1 // adjust this, but curve joining gets choppy above 1
+	}
+
+	// outie or innie?? random orientation for each side
+	// top
 	var outie float32 = flip() // 1.0 is outie, -1.0 is innie
 	height = bumpDimension(height, outie, size)
-	curves = setTopSide(curves, outie, size, 0.0)
+	curves = setTopSide(curves, outie, size, offset)
 
-	offsetHeight = bumpDimension(offsetHeight, outie, offsetSize)
-	offsetCurves = setTopSide(offsetCurves, outie, offsetSize, offset)
+	// create a second piece offset from the first
+	if alignmentDebug {
+		offsetHeight = bumpDimension(offsetHeight, outie, offsetSize)
+		offsetCurves = setTopSide(offsetCurves, outie, offsetSize, alignmentOffset)
+	}
 
+	// right
 	outie = flip()
 	width = bumpDimension(width, outie, size)
-	curves = setRightSide(curves, outie, size)
+	curves = setRightSide(curves, outie, size, offset)
 
-	offsetWidth = bumpDimension(offsetWidth, outie, offsetSize)
-	offsetCurves = setRightSide(offsetCurves, outie, offsetSize)
+	if alignmentDebug {
+		offsetWidth = bumpDimension(offsetWidth, outie, offsetSize)
+		offsetCurves = setRightSide(offsetCurves, outie, offsetSize, alignmentOffset)
+	}
 
+	// bottom
 	outie = flip()
 	height = bumpDimension(height, outie, size)
-	curves = setBottomSide(curves, outie, size, 0.0)
+	curves = setBottomSide(curves, outie, size, offset)
 
-	offsetHeight = bumpDimension(offsetHeight, outie, offsetSize)
-	offsetCurves = setBottomSide(offsetCurves, outie, offsetSize, offset)
+	if alignmentDebug {
+		offsetHeight = bumpDimension(offsetHeight, outie, offsetSize)
+		offsetCurves = setBottomSide(offsetCurves, outie, offsetSize, alignmentOffset)
+	}
 
+	// left
 	outie = flip()
 	width = bumpDimension(width, outie, size)
-	curves = setLeftSide(curves, outie, size)
+	curves = setLeftSide(curves, outie, size, offset)
 
-	offsetWidth = bumpDimension(offsetWidth, outie, offsetSize)
-	offsetCurves = setLeftSide(offsetCurves, outie, offsetSize)
+	if alignmentDebug {
+		offsetWidth = bumpDimension(offsetWidth, outie, offsetSize)
+		offsetCurves = setLeftSide(offsetCurves, outie, offsetSize, alignmentOffset)
+	}
 
 	var svgHeader string = "<!-- generated with jigsaw.go -->\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\" width=\"200mm\" height=\"200mm\" viewBox=\"-30 -30 200 200\">"
 	fmt.Println(svgHeader)
@@ -68,9 +93,36 @@ func main() {
 	strCurves := formatCurves(curves, width, height, point{0, 0})
 	fmt.Printf("%s", strCurves)
 
-	offsetStrCurves := formatCurves(offsetCurves, offsetWidth, offsetHeight, point{0, 0})
-	fmt.Printf("\n\n%s", offsetStrCurves)
+	if alignmentDebug {
+		// debug curve
+		offsetStrCurves := formatCurves(offsetCurves, offsetWidth, offsetHeight, point{0, 0})
+		fmt.Printf("\n\n%s", offsetStrCurves)
 
+		// alignment lines
+
+		fmt.Println("<line fill=\"none\" stroke=\"orange\" stroke-width=\"0.25\" x1=\"40\" y1=\"-25\" x2=\"40\" y2=\"120\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"orange\" stroke-width=\"0.25\" x1=\"38\" y1=\"-25\" x2=\"38\" y2=\"120\"></line>")
+
+		fmt.Println("<line fill=\"none\" stroke=\"purple\" stroke-width=\"0.25\" x1=\"60\" y1=\"-25\" x2=\"60\" y2=\"120\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"purple\" stroke-width=\"0.25\" x1=\"62\" y1=\"-25\" x2=\"62\" y2=\"120\"></line>")
+
+		fmt.Println("<line fill=\"none\" stroke=\"blue\" stroke-width=\"0.25\" x1=\"-20\" y1=\"62\" x2=\"120\" y2=\"62\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"blue\" stroke-width=\"0.25\" x1=\"-20\" y1=\"60\" x2=\"120\" y2=\"60\"></line>")
+
+		fmt.Println("<line fill=\"none\" stroke=\"green\" stroke-width=\"0.25\" x1=\"-20\" y1=\"40\" x2=\"120\" y2=\"40\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"green\" stroke-width=\"0.25\" x1=\"-20\" y1=\"38\" x2=\"120\" y2=\"38\"></line>")
+
+		// diagonal cross
+		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"0\" y1=\"0\" x2=\"100\" y2=\"100\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"100\" y1=\"0\" x2=\"0\" y2=\"100\"></line>")
+
+		// vertical/horizontal cross
+		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"50\" y1=\"-25\" x2=\"50\" y2=\"120\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"-30\" y1=\"50\" x2=\"130\" y2=\"50\"></line>")
+
+		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"-30\" y1=\"0\" x2=\"130\" y2=\"0\"></line>")
+		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"-30\" y1=\"2\" x2=\"130\" y2=\"2\"></line>")
+	}
 	var svgFooter string = "</svg>"
 	fmt.Println(svgFooter)
 }
@@ -95,13 +147,14 @@ func flip() float32 {
 
 func setTopSide(curves [4][3][3]point, outie float32, size float32, offset float32) [4][3][3]point {
 
-	outie = 1.0
+	//outie = 1.0
 	// top side. Every 3 lines is one C SVG declaration
 	curves[0][0][0] = point{size * curveOne, 0}
 	curves[0][0][1] = point{size * halfway, size * outie * curveTwo}
 	curves[0][0][2] = point{size*curveThree + offset*outie, size * outie * curveTwo * -1}
 
 	curves[0][1][0] = point{size*curveFour + offset*outie, size * outie * curveFour * -1}
+	//curves[0][1][0] = point{size*curveFour + offset*outie, size * outie * curveFour * -1}
 	curves[0][1][1] = point{size * (1 - curveFour), size*outie*curveFour*-1 + offset*2}
 	curves[0][1][2] = point{size*(1-curveThree) - offset*outie, size * outie * curveTwo * -1}
 
@@ -112,18 +165,19 @@ func setTopSide(curves [4][3][3]point, outie float32, size float32, offset float
 	return curves
 }
 
-func setRightSide(curves [4][3][3]point, outie float32, size float32) [4][3][3]point {
+func setRightSide(curves [4][3][3]point, outie float32, size float32, offset float32) [4][3][3]point {
 
+	//outie = 1.0
 	// right side
 	curves[1][0][0] = point{size, size * curveOne}
 	curves[1][0][1] = point{size * (1 - (outie * curveTwo)), size * halfway}
-	curves[1][0][2] = point{size * (1 + (outie * curveTwo)), size * 2 * curveOne}
+	curves[1][0][2] = point{size * (1 + (outie * curveTwo)), size*2*curveOne + offset*outie}
 
-	curves[1][1][0] = point{size * (1 + (outie * curveFour)), size * curveFour}
-	curves[1][1][1] = point{size * (1 + (outie * curveFour)), size * (1 - curveFour)}
-	curves[1][1][2] = point{size * (1 + (outie * curveTwo)), size * (1 - curveThree)}
+	curves[1][1][0] = point{size * (1 + (outie * curveFour)), size*curveFour + offset*outie}
+	curves[1][1][1] = point{size*(1+(outie*curveFour)) - offset*2, size * (1 - curveFour)}
+	curves[1][1][2] = point{size * (1 + (outie * curveTwo)), size*(1-curveThree) - offset*outie}
 
-	curves[1][2][0] = point{size * (1 - (outie * curveTwo)), size * halfway}
+	curves[1][2][0] = point{size * (1 - (outie * curveTwo)), size*halfway - offset*outie}
 	curves[1][2][1] = point{size, size * (1 - curveOne)}
 	curves[1][2][2] = point{size, size}
 
@@ -131,7 +185,7 @@ func setRightSide(curves [4][3][3]point, outie float32, size float32) [4][3][3]p
 }
 
 func setBottomSide(curves [4][3][3]point, outie float32, size float32, offset float32) [4][3][3]point {
-	outie = -1.0
+	//	outie = -1.0
 	// bottom side
 	curves[2][0][0] = point{size * (1 - curveOne), size}
 	curves[2][0][1] = point{size * halfway, size * (1 - (outie * curveTwo))}
@@ -148,18 +202,19 @@ func setBottomSide(curves [4][3][3]point, outie float32, size float32, offset fl
 	return curves
 }
 
-func setLeftSide(curves [4][3][3]point, outie float32, size float32) [4][3][3]point {
+func setLeftSide(curves [4][3][3]point, outie float32, size float32, offset float32) [4][3][3]point {
 
+	//	outie = -1.0
 	// left side
 	curves[3][0][0] = point{0, size * (1 - curveOne)}
 	curves[3][0][1] = point{size * outie * curveTwo, size * halfway}
-	curves[3][0][2] = point{size * (-1 * outie * curveTwo), size * (1 - curveThree)}
+	curves[3][0][2] = point{size * (-1 * outie * curveTwo), size*(1-curveThree) - offset*outie}
 
-	curves[3][1][0] = point{size * (-1 * outie * curveFour), size * (1 - curveFour)}
-	curves[3][1][1] = point{size * (-1 * outie * curveFour), size * curveFour}
-	curves[3][1][2] = point{size * (-1 * outie * curveTwo), size * curveThree}
+	curves[3][1][0] = point{size * (-1 * outie * curveFour), size*(1-curveFour) - offset*outie}
+	curves[3][1][1] = point{size*(-1*outie*curveFour) + offset*2, size * curveFour}
+	curves[3][1][2] = point{size * (-1 * outie * curveTwo), size*curveThree + offset*outie}
 
-	curves[3][2][0] = point{size * outie * curveTwo, size * halfway}
+	curves[3][2][0] = point{size * outie * curveTwo, size*halfway + offset*outie}
 	curves[3][2][1] = point{0, size * curveOne}
 	curves[3][2][2] = point{0, 0}
 

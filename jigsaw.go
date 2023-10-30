@@ -14,7 +14,7 @@ type point struct {
 var size float32 = 100
 
 // offset which would be the jigsaw cutting width so pieces fit together
-var offset float32 = 1
+var offset float32 = 0.5
 
 // magic numbers which control the shapes of the innies/outies
 var halfway float32 = 0.5
@@ -154,7 +154,6 @@ func setTopSide(curves [4][3][3]point, outie float32, size float32, offset float
 	curves[0][0][2] = point{size*curveThree + offset*outie, size * outie * curveTwo * -1}
 
 	curves[0][1][0] = point{size*curveFour + offset*outie, size * outie * curveFour * -1}
-	//curves[0][1][0] = point{size*curveFour + offset*outie, size * outie * curveFour * -1}
 	curves[0][1][1] = point{size * (1 - curveFour), size*outie*curveFour*-1 + offset*2}
 	curves[0][1][2] = point{size*(1-curveThree) - offset*outie, size * outie * curveTwo * -1}
 
@@ -224,7 +223,13 @@ func setLeftSide(curves [4][3][3]point, outie float32, size float32, offset floa
 func formatCurves(curves [4][3][3]point, width float32, height float32, start point) string {
 
 	var dimension string = fmt.Sprintf("<!-- width %1.1f, height %1.1f -->\n", width, height)
-	var pathElemStart string = "<path fill=\"Blue\" style=\"fill-opacity: .05;\" stroke=\"Red\" stroke-width=\"0.1\" d=\""
+	var pathElemStart string
+	if alignmentDebug {
+		pathElemStart = "<path fill=\"Blue\" style=\"fill-opacity: .05;\" stroke=\"Red\" stroke-width=\"0.1\" d=\""
+	} else {
+		pathElemStart = "<path fill=\"Blue\" style=\"fill-opacity: 1;\" stroke=\"Red\" stroke-width=\"0\" d=\""
+
+	}
 	var strCurve string = fmt.Sprintf("\tM %1.1f,%1.1f", start.x, start.y)
 
 	for i := 0; i < 4; i++ {

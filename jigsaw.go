@@ -11,7 +11,7 @@ type point struct {
 	y float32
 }
 
-var size float32 = 100
+var size float32 = 140
 
 // offset which would be the jigsaw cutting width so pieces fit together
 var offset float32 = 0.5
@@ -26,7 +26,7 @@ var curveTwo float32 = 0.1            // 0 to 0.1
 var curveThree float32 = curveOne * 2 // 0.4
 var curveFour float32 = curveTwo * 3  // 0.3
 
-var alignmentDebug bool = false
+var alignmentDebug bool = true
 
 func main() {
 
@@ -35,8 +35,8 @@ func main() {
 
 	var curves = [4][3][3]point{}
 
+	offsetSize := size
 	var offsetCurves = [4][3][3]point{}
-	var offsetSize float32 = 100
 	var offsetWidth float32 = offsetSize
 	var offsetHeight float32 = offsetSize
 
@@ -89,7 +89,7 @@ func main() {
 		offsetCurves = setLeftSide(offsetCurves, outie, offsetSize, alignmentOffset)
 	}
 
-	fmt.Printf("<!-- generated with jigsaw.go -->\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\" width=\"200mm\" height=\"200mm\" viewBox=\"-30 -30 200 200\">\n")
+	fmt.Printf("<!-- generated with jigsaw.go -->\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\" width=\"%1.1fmm\" height=\"%1.1fmm\" viewBox=\"-%1.1f -%1.1f %1.1f %1.1f\">\n", size+100, size+100, size/3, size/3, size+100, size+100)
 	fmt.Printf("<!-- width %1.1f, height %1.1f -->\n", width, height)
 	fmt.Printf("<!-- offset %1.1f, curveOffset %1.1f -->\n", offset, curveOffset)
 
@@ -104,28 +104,28 @@ func main() {
 
 		// alignment lines
 
-		fmt.Println("<line fill=\"none\" stroke=\"orange\" stroke-width=\"0.25\" x1=\"40\" y1=\"-25\" x2=\"40\" y2=\"120\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"orange\" stroke-width=\"0.25\" x1=\"38\" y1=\"-25\" x2=\"38\" y2=\"120\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"orange\" stroke-width=\"0.25\" x1=\"%1.1f\" y1=\"0\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2-10, size/2-10, size)
+		fmt.Printf("<line fill=\"none\" stroke=\"orange\" stroke-width=\"0.25\" x1=\"%1.1f\" y1=\"0\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2-10-2, size/2-10-2, size)
 
-		fmt.Println("<line fill=\"none\" stroke=\"purple\" stroke-width=\"0.25\" x1=\"60\" y1=\"-25\" x2=\"60\" y2=\"120\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"purple\" stroke-width=\"0.25\" x1=\"62\" y1=\"-25\" x2=\"62\" y2=\"120\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"purple\" stroke-width=\"0.25\" x1=\"%1.1f\" y1=\"0\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2+10, size/2+10, size)
+		fmt.Printf("<line fill=\"none\" stroke=\"purple\" stroke-width=\"0.25\" x1=\"%1.1f\" y1=\"0\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2+10+2, size/2+10+2, size)
 
-		fmt.Println("<line fill=\"none\" stroke=\"blue\" stroke-width=\"0.25\" x1=\"-20\" y1=\"62\" x2=\"120\" y2=\"62\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"blue\" stroke-width=\"0.25\" x1=\"-20\" y1=\"60\" x2=\"120\" y2=\"60\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"blue\" stroke-width=\"0.25\" x1=\"0\" y1=\"%1.1f\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2+10+2, size, size/2+10+2)
+		fmt.Printf("<line fill=\"none\" stroke=\"blue\" stroke-width=\"0.25\" x1=\"0\" y1=\"%1.1f\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2+10, size, size/2+10)
 
-		fmt.Println("<line fill=\"none\" stroke=\"green\" stroke-width=\"0.25\" x1=\"-20\" y1=\"40\" x2=\"120\" y2=\"40\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"green\" stroke-width=\"0.25\" x1=\"-20\" y1=\"38\" x2=\"120\" y2=\"38\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"green\" stroke-width=\"0.25\" x1=\"0\" y1=\"%1.1f\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2-10, size, size/2-10)
+		fmt.Printf("<line fill=\"none\" stroke=\"green\" stroke-width=\"0.25\" x1=\"0\" y1=\"%1.1f\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2-10-2, size, size/2-10-2)
 
 		// diagonal cross
-		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"0\" y1=\"0\" x2=\"100\" y2=\"100\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"100\" y1=\"0\" x2=\"0\" y2=\"100\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"0\" y1=\"0\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size, size)
+		fmt.Printf("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"%1.1f\" y1=\"0\" x2=\"0\" y2=\"%1.1f\"></line>\n", size, size)
 
 		// vertical/horizontal cross
-		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"50\" y1=\"-25\" x2=\"50\" y2=\"120\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"-30\" y1=\"50\" x2=\"130\" y2=\"50\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"%1.1f\" y1=\"-\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2, size/2, size)
+		fmt.Printf("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"0\" y1=\"%1.1f\" x2=\"%1.1f\" y2=\"%1.1f\"></line>\n", size/2, size, size/2)
 
-		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"-30\" y1=\"0\" x2=\"130\" y2=\"0\"></line>")
-		fmt.Println("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"-30\" y1=\"2\" x2=\"130\" y2=\"2\"></line>")
+		fmt.Printf("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"0\" y1=\"0\" x2=\"%1.1f\" y2=\"0\"></line>\n", size)
+		fmt.Printf("<line fill=\"none\" stroke=\"Red\" stroke-width=\"0.4\" x1=\"0\" y1=\"2\" x2=\"%1.1f\" y2=\"2\"></line>\n", size)
 	}
 	var svgFooter string = "</svg>"
 	fmt.Println(svgFooter)
@@ -142,6 +142,8 @@ func bumpDimension(dimension float32, outie float32, size float32) float32 {
 }
 
 func flip() float32 {
+
+	return -1.0
 	if rand.Intn(2) == 0 {
 		return 1.0
 	} else {
